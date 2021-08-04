@@ -1,0 +1,64 @@
+#!/usr/bin/bash
+##############################################################
+# Takes a github binary link - usually to gz                 #
+# and install in my local environment                        #
+# makes it easier to automate local bin installs             #
+##############################################################
+
+# Setup of global variables for this system
+LOCAL_BIN_PATH="$HOME/.local/bin"
+
+
+
+download () {
+        local binurl=$1
+        local download_dir=$2 # maybe directly install dir instead of mktemp!
+        local filename
+        cd "${download_dir}"
+        wget "${binurl}"
+        filename=$(ls)
+        echo "${filename}"
+}
+
+unpack () {
+        local filename
+        local extension
+        extension=${filename##*.}
+        filename=$(basename "$1")
+        # find more expressive ways for string manipulation!
+        if [ ${${filename%.*}##*.} == "tar" ]; then
+                extension=tar.${extension}
+        fi
+
+        case $extension in
+                "tar.gz"*)
+                        tar -xzf "${filename}"
+                        ;;
+                "zip"*)
+                        gunzip -xzf "${filename}"
+                        ;;
+        esac
+# get file ending and use regarding unpacking
+}
+
+
+setup_install_dir () {
+        # create install dir
+        local dir_name=$1
+        # delete folder if exists? - clean target?
+        # do interactively!
+}
+
+setup_path_link () {
+        local bin_name
+        local bin_path
+        bin_name=$1
+        bin_path=$(find . -name "${bin_name}")
+        if  [[ -z $bin_path ]]; then
+                echo "no such file ${bin_name} found!"
+                exit 1
+        fi
+        #find binary file (by name???)
+        bin_path=${bin_path//./$(pwd)}
+        ln -s "${bin_path}" "${LOCAL_BIN_PATH}/${bin_name}"
+}
