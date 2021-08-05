@@ -8,6 +8,29 @@
 # Setup of global variables for this system
 LOCAL_BIN_PATH="$HOME/.local/bin"
 
+local downloader_bin
+
+_dependency_check () {
+        # check for dependencies: wget or curl! -> if both missing error
+        # unpacking tools, gunzip? tar? -> warnings, 
+        command -v wget
+        command -v curl
+        command -v gunzip
+        command -v tar
+}
+
+_download () {
+        local target
+        target=$1
+        case "${downloader_bin}" in 
+                "wget"*)
+                        wget "${target}"
+                        ;;
+                "curl"*)
+                        curl "${target}"
+                        ;;
+        esac
+}
 
 
 download () {
@@ -15,7 +38,7 @@ download () {
         local download_dir=$2 # maybe directly install dir instead of mktemp!
         local filename
         cd "${download_dir}"
-        wget "${binurl}"
+        _download "${binurl}"
         filename=$(ls)
         echo "${filename}"
 }
@@ -30,7 +53,7 @@ unpack () {
                 extension=tar.${extension}
         fi
 
-        case $extension in
+        case "${extension}" in
                 "tar.gz"*)
                         tar -xzf "${filename}"
                         ;;
